@@ -49,11 +49,18 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="ticket-card text-center">
-                <h1 class="mb-4"><i class="bi bi-check-circle-fill"></i> Tickets Booked Successfully!</h1>
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 80px; color: #2ecc71; margin-bottom: 20px;">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <h1 class="mb-3" style="font-size: 36px; font-weight: bold;">TICKET BOOKED!</h1>
+                    <p style="font-size: 18px; opacity: 0.9;">Your booking has been confirmed and saved</p>
+                </div>
                 
                 {% if booking_code %}
-                <div class="booking-code mb-4">
-                    Booking Code: {{ booking_code }}
+                <div class="booking-code mb-4" style="background-color: rgba(255, 214, 10, 0.2); padding: 15px; border-radius: 10px; border: 2px solid #ffd60a;">
+                    <div style="font-size: 14px; margin-bottom: 5px; opacity: 0.8;">BOOKING CODE</div>
+                    <div style="font-size: 32px; letter-spacing: 5px;">{{ booking_code }}</div>
                 </div>
                 {% endif %}
                 
@@ -101,16 +108,35 @@
                 </div>
                 
                 <div class="mt-4">
-                    <div class="alert alert-success" style="background-color: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #2ecc71; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <h5><i class="bi bi-check-circle-fill"></i> Booking Saved Successfully!</h5>
-                        <p class="mb-0">Your tickets have been saved to "My Bookings". A confirmation email has been sent to your registered email address.</p>
+                    <div class="alert alert-success" style="background-color: rgba(46, 204, 113, 0.3); border: 2px solid #2ecc71; color: #2ecc71; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 10px;"><i class="bi bi-check-circle-fill"></i> Booking Saved to My Bookings!</h4>
+                        <p style="margin-bottom: 5px;"><strong>✓ Your tickets have been successfully saved</strong></p>
+                        <p style="margin-bottom: 5px;"><strong>✓ Booking ID: #{{ booking_id }}</strong></p>
+                        <p class="mb-0"><strong>✓ A confirmation email has been sent to your registered email address</strong></p>
                     </div>
-                    <a class="btn btn-warning btn-lg mr-3" href="/mybookings" style="font-weight: bold; padding: 12px 30px;">
-                        <i class="bi bi-bookmark-check"></i> View My Bookings
-                    </a>
-                    <a class="btn btn-outline-light btn-lg" href="/show?date={{ sdate|default:'' }}" style="padding: 12px 30px;">
-                        <i class="bi bi-ticket-perforated"></i> Book More Tickets
-                    </a>
+                    
+                    <div style="text-align: center;">
+                        <a class="btn btn-warning btn-lg" href="/mybookings" style="font-weight: bold; padding: 15px 40px; font-size: 18px; margin: 10px; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);">
+                            <i class="bi bi-bookmark-check"></i> View My Bookings
+                        </a>
+                        <br>
+                        <a class="btn btn-outline-light btn-lg" href="/show?date={{ sdate|default:'' }}" style="padding: 12px 30px; margin-top: 10px;">
+                            <i class="bi bi-ticket-perforated"></i> Book More Tickets
+                        </a>
+                    </div>
+                    
+                    {% if booking_saved %}
+                    <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <p style="margin: 0; font-size: 14px; opacity: 0.8;">
+                            <i class="bi bi-info-circle"></i> Your booking is now available in "My Bookings". You can view, print, or cancel it anytime.
+                        </p>
+                        {% if in_my_bookings %}
+                        <p style="margin: 5px 0 0 0; font-size: 12px; color: #2ecc71;">
+                            <i class="bi bi-check2"></i> Verified: Booking saved to your account
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -83,11 +83,47 @@
               <div class="alert alert-warning" style="background-color: rgba(255, 193, 7, 0.2); border: 1px solid #ffc107; color: #ffc107; padding: 20px; border-radius: 8px; margin-top: 20px;">
                 <h4><i class="bi bi-info-circle"></i> No shows available</h4>
                 <p>There are no movies showing on <strong>{{ date }}</strong>.</p>
-                <p>Please try a different date or contact the admin to add shows.</p>
+                <div style="background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; margin: 15px 0;">
+                  <p style="margin-bottom: 10px;"><strong>Important:</strong> For a show to appear on this date, it must have:</p>
+                  <ul style="margin-left: 20px; margin-bottom: 0;">
+                    <li><strong>Start Date</strong> ≤ <strong>{{ date }}</strong></li>
+                    <li><strong>End Date</strong> ≥ <strong>{{ date }}</strong></li>
+                    <li>Must be linked to a Movie</li>
+                  </ul>
+                </div>
+                <p>Please try a different date or check your show dates in the admin panel.</p>
                 {% if user.is_staff %}
                 <a href="/admin/shows" class="btn btn-warning mt-2">
-                  <i class="bi bi-plus-circle"></i> Add Shows (Admin)
+                  <i class="bi bi-plus-circle"></i> Add/Edit Shows (Admin)
                 </a>
+                <a href="/system/" class="btn btn-info mt-2 ml-2">
+                  <i class="bi bi-gear"></i> Django Admin
+                </a>
+                {% endif %}
+                
+                {% if debug_info %}
+                <div style="background-color: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin-top: 20px; color: #fff;">
+                  <h5 style="color: #ffd60a;">Debug Info (Admin Only):</h5>
+                  <p>Recent shows in database:</p>
+                  <table style="width: 100%; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #555;">
+                      <th style="padding: 5px; text-align: left;">Movie</th>
+                      <th style="padding: 5px; text-align: left;">Start Date</th>
+                      <th style="padding: 5px; text-align: left;">End Date</th>
+                      <th style="padding: 5px; text-align: left;">In Range?</th>
+                    </tr>
+                    {% for info in debug_info %}
+                    <tr style="border-bottom: 1px solid #333;">
+                      <td style="padding: 5px;">{{ info.movie }}</td>
+                      <td style="padding: 5px;">{{ info.start_date|default:"Not set" }}</td>
+                      <td style="padding: 5px;">{{ info.end_date|default:"Not set" }}</td>
+                      <td style="padding: 5px; color: {% if info.in_range %}#2ecc71{% else %}#e74c3c{% endif %};">
+                        {% if info.in_range %}✓ Yes{% else %}✗ No{% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </table>
+                </div>
                 {% endif %}
               </div>
             {% else %}
@@ -128,87 +164,54 @@
                         <!-- Seat Layout Container -->
                         <div style="overflow-x: auto; padding: 10px 0;">
                           <!-- Row Labels and Seats -->
-                          <div style="display: flex; flex-direction: column; gap: 12px;">
+                          <div style="display: flex; flex-direction: column; gap: 15px;">
                             
                             <!-- Row A -->
-                            <div class="seat-row-container">
+                            <div class="seat-row-wrapper">
                               <div class="srow" id="row-A">
                                 <div class="seatindex-large">A</div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="A{{ forloop.counter }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="A{{ forloop.counter|add:10 }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="A{{ forloop.counter|add:20 }}"></div>{% endfor %}
-                                </div>
+                                <div class="seat-group"><div class="seat" sno="A1"></div><div class="seat" sno="A2"></div><div class="seat" sno="A3"></div><div class="seat" sno="A4"></div><div class="seat" sno="A5"></div><div class="seat" sno="A6"></div><div class="seat" sno="A7"></div><div class="seat" sno="A8"></div><div class="seat" sno="A9"></div><div class="seat" sno="A10"></div></div>
+                                <div class="seat-group"><div class="seat" sno="A11"></div><div class="seat" sno="A12"></div><div class="seat" sno="A13"></div><div class="seat" sno="A14"></div><div class="seat" sno="A15"></div><div class="seat" sno="A16"></div><div class="seat" sno="A17"></div><div class="seat" sno="A18"></div><div class="seat" sno="A19"></div><div class="seat" sno="A20"></div></div>
+                                <div class="seat-group"><div class="seat" sno="A21"></div><div class="seat" sno="A22"></div><div class="seat" sno="A23"></div><div class="seat" sno="A24"></div><div class="seat" sno="A25"></div><div class="seat" sno="A26"></div><div class="seat" sno="A27"></div><div class="seat" sno="A28"></div><div class="seat" sno="A29"></div><div class="seat" sno="A30"></div></div>
                               </div>
                             </div>
                             
                             <!-- Row B -->
-                            <div class="seat-row-container">
+                            <div class="seat-row-wrapper">
                               <div class="srow" id="row-B">
                                 <div class="seatindex-large">B</div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="B{{ forloop.counter }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="B{{ forloop.counter|add:10 }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="B{{ forloop.counter|add:20 }}"></div>{% endfor %}
-                                </div>
+                                <div class="seat-group"><div class="seat" sno="B1"></div><div class="seat" sno="B2"></div><div class="seat" sno="B3"></div><div class="seat" sno="B4"></div><div class="seat" sno="B5"></div><div class="seat" sno="B6"></div><div class="seat" sno="B7"></div><div class="seat" sno="B8"></div><div class="seat" sno="B9"></div><div class="seat" sno="B10"></div></div>
+                                <div class="seat-group"><div class="seat" sno="B11"></div><div class="seat" sno="B12"></div><div class="seat" sno="B13"></div><div class="seat" sno="B14"></div><div class="seat" sno="B15"></div><div class="seat" sno="B16"></div><div class="seat" sno="B17"></div><div class="seat" sno="B18"></div><div class="seat" sno="B19"></div><div class="seat" sno="B20"></div></div>
+                                <div class="seat-group"><div class="seat" sno="B21"></div><div class="seat" sno="B22"></div><div class="seat" sno="B23"></div><div class="seat" sno="B24"></div><div class="seat" sno="B25"></div><div class="seat" sno="B26"></div><div class="seat" sno="B27"></div><div class="seat" sno="B28"></div><div class="seat" sno="B29"></div><div class="seat" sno="B30"></div></div>
                               </div>
                             </div>
                             
                             <!-- Row C -->
-                            <div class="seat-row-container">
+                            <div class="seat-row-wrapper">
                               <div class="srow" id="row-C">
                                 <div class="seatindex-large">C</div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="C{{ forloop.counter }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="C{{ forloop.counter|add:10 }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="C{{ forloop.counter|add:20 }}"></div>{% endfor %}
-                                </div>
+                                <div class="seat-group"><div class="seat" sno="C1"></div><div class="seat" sno="C2"></div><div class="seat" sno="C3"></div><div class="seat" sno="C4"></div><div class="seat" sno="C5"></div><div class="seat" sno="C6"></div><div class="seat" sno="C7"></div><div class="seat" sno="C8"></div><div class="seat" sno="C9"></div><div class="seat" sno="C10"></div></div>
+                                <div class="seat-group"><div class="seat" sno="C11"></div><div class="seat" sno="C12"></div><div class="seat" sno="C13"></div><div class="seat" sno="C14"></div><div class="seat" sno="C15"></div><div class="seat" sno="C16"></div><div class="seat" sno="C17"></div><div class="seat" sno="C18"></div><div class="seat" sno="C19"></div><div class="seat" sno="C20"></div></div>
+                                <div class="seat-group"><div class="seat" sno="C21"></div><div class="seat" sno="C22"></div><div class="seat" sno="C23"></div><div class="seat" sno="C24"></div><div class="seat" sno="C25"></div><div class="seat" sno="C26"></div><div class="seat" sno="C27"></div><div class="seat" sno="C28"></div><div class="seat" sno="C29"></div><div class="seat" sno="C30"></div></div>
                               </div>
                             </div>
                             
                             <!-- Row D -->
-                            <div class="seat-row-container">
+                            <div class="seat-row-wrapper">
                               <div class="srow" id="row-D">
                                 <div class="seatindex-large">D</div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="D{{ forloop.counter }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="D{{ forloop.counter|add:10 }}"></div>{% endfor %}
-                                </div>
-                                <div class="seat-group">
-                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="D{{ forloop.counter|add:20 }}"></div>{% endfor %}
-                                </div>
+                                <div class="seat-group"><div class="seat" sno="D1"></div><div class="seat" sno="D2"></div><div class="seat" sno="D3"></div><div class="seat" sno="D4"></div><div class="seat" sno="D5"></div><div class="seat" sno="D6"></div><div class="seat" sno="D7"></div><div class="seat" sno="D8"></div><div class="seat" sno="D9"></div><div class="seat" sno="D10"></div></div>
+                                <div class="seat-group"><div class="seat" sno="D11"></div><div class="seat" sno="D12"></div><div class="seat" sno="D13"></div><div class="seat" sno="D14"></div><div class="seat" sno="D15"></div><div class="seat" sno="D16"></div><div class="seat" sno="D17"></div><div class="seat" sno="D18"></div><div class="seat" sno="D19"></div><div class="seat" sno="D20"></div></div>
+                                <div class="seat-group"><div class="seat" sno="D21"></div><div class="seat" sno="D22"></div><div class="seat" sno="D23"></div><div class="seat" sno="D24"></div><div class="seat" sno="D25"></div><div class="seat" sno="D26"></div><div class="seat" sno="D27"></div><div class="seat" sno="D28"></div><div class="seat" sno="D29"></div><div class="seat" sno="D30"></div></div>
                               </div>
                             </div>
                             
                             <!-- Seat Numbers Row -->
-                            <div class="srow" style="margin-top: 15px; padding-left: 30px;">
+                            <div class="srow" style="margin-top: 15px;">
                               <div class="seatnumber" style="width: 30px;"></div>
-                              <div class="seat-group">
-                                <div class="seatnumber">1</div><div class="seatnumber">2</div><div class="seatnumber">3</div><div class="seatnumber">4</div><div class="seatnumber">5</div>
-                                <div class="seatnumber">6</div><div class="seatnumber">7</div><div class="seatnumber">8</div><div class="seatnumber">9</div><div class="seatnumber">10</div>
-                              </div>
-                              <div class="seat-group">
-                                <div class="seatnumber">11</div><div class="seatnumber">12</div><div class="seatnumber">13</div><div class="seatnumber">14</div><div class="seatnumber">15</div>
-                                <div class="seatnumber">16</div><div class="seatnumber">17</div><div class="seatnumber">18</div><div class="seatnumber">19</div><div class="seatnumber">20</div>
-                              </div>
-                              <div class="seat-group">
-                                <div class="seatnumber">21</div><div class="seatnumber">22</div><div class="seatnumber">23</div><div class="seatnumber">24</div><div class="seatnumber">25</div>
-                                <div class="seatnumber">26</div><div class="seatnumber">27</div><div class="seatnumber">28</div><div class="seatnumber">29</div><div class="seatnumber">30</div>
-                              </div>
+                              <div class="seat-group"><div class="seatnumber">1</div><div class="seatnumber">2</div><div class="seatnumber">3</div><div class="seatnumber">4</div><div class="seatnumber">5</div><div class="seatnumber">6</div><div class="seatnumber">7</div><div class="seatnumber">8</div><div class="seatnumber">9</div><div class="seatnumber">10</div></div>
+                              <div class="seat-group"><div class="seatnumber">11</div><div class="seatnumber">12</div><div class="seatnumber">13</div><div class="seatnumber">14</div><div class="seatnumber">15</div><div class="seatnumber">16</div><div class="seatnumber">17</div><div class="seatnumber">18</div><div class="seatnumber">19</div><div class="seatnumber">20</div></div>
+                              <div class="seat-group"><div class="seatnumber">21</div><div class="seatnumber">22</div><div class="seatnumber">23</div><div class="seatnumber">24</div><div class="seatnumber">25</div><div class="seatnumber">26</div><div class="seatnumber">27</div><div class="seatnumber">28</div><div class="seatnumber">29</div><div class="seatnumber">30</div></div>
                             </div>
                             
                           </div>
@@ -441,17 +444,39 @@
       }
     }
 
-    $(".bookticketsbtn").click(function(){
+    $(".bookticketsbtn").click(function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      
       var selectedSeats = $("#seats_input").val();
+      var showDate = $("#show_date").val();
+      var showId = $("#show_id").val();
+      
+      console.log("Book button clicked");
+      console.log("Selected seats:", selectedSeats);
+      console.log("Show date:", showDate);
+      console.log("Show ID:", showId);
+      
       if(!selectedSeats || selectedSeats.length === 0){
         alert("Please select at least one seat to continue.");
         return false;
       }
       
-      if(confirm("Confirm booking for seats: " + selectedSeats + "?")){
-        $( "#target_form" ).submit();
-        console.log("Button clicked - Form submitted");
+      if(!showDate || !showId){
+        alert("Missing show information. Please try again.");
+        return false;
       }
+      
+      if(confirm("Confirm booking for seats: " + selectedSeats + "?")){
+        // Close modal first
+        $('#exampleModalCenter').modal('hide');
+        
+        // Submit form
+        console.log("Submitting form to /checkout");
+        $( "#target_form" ).submit();
+      }
+      
+      return false;
     });
     
     
