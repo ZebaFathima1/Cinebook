@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e_h%5f=0rgjm3(9ps49lt*t+actcc=wuzvi_69$ry(!^v6vlr#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True  # Set to True for local development
 
 ALLOWED_HOSTS = ['*']
 
@@ -91,31 +91,39 @@ WSGI_APPLICATION = 'movieticket.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+# Use PostgreSQL if environment variables are set, otherwise use SQLite for local development
+if all(key in os.environ for key in ['DBNAME', 'DBHOST', 'DBUSER', 'DBPASS']):
+    DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ['DBNAME'],
+            'HOST': os.environ['DBHOST'],
+            'USER': os.environ['DBUSER'],
+            'PASSWORD': os.environ['DBPASS'] ,
+            'PORT': '5433',
+       }
+    }
+else:
+    # Fallback to SQLite for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['DBNAME'],
-        'HOST': os.environ['DBHOST'],
-        'USER': os.environ['DBUSER'],
-        'PASSWORD': os.environ['DBPASS'] ,
-        'PORT': '5433',
-   }
-}
 
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ['EMHOST']
-EMAIL_HOST_USER = os.environ['EMUSER']
-EMAIL_HOST_PASSWORD = os.environ['EMPASS']
-EMAIL_PORT = '2525'
-EMAIL_USE_TLS = True
+# Email configuration - use environment variables if available, otherwise use console backend for local dev
+if all(key in os.environ for key in ['EMHOST', 'EMUSER', 'EMPASS']):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ['EMHOST']
+    EMAIL_HOST_USER = os.environ['EMUSER']
+    EMAIL_HOST_PASSWORD = os.environ['EMPASS']
+    EMAIL_PORT = '2525'
+    EMAIL_USE_TLS = True
+else:
+    # Use console backend for local development (emails printed to console)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # Password validation

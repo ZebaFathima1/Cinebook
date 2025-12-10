@@ -27,23 +27,31 @@ def movie_detail(request,id):
 
 @user_passes_test(user_login_required, login_url='/accounts/usersignin')
 def show_select(request):
-    if(request.method == "GET" and len(request.GET)!=0):
-        
+    # Initialize variables
+    res_dict = {}
+    date = None
+    shows = []
+    
+    # If no date provided, set default to tomorrow
+    from datetime import date as dt_date, timedelta
+    if request.method == "GET" and 'date' in request.GET and request.GET['date']:
         date = request.GET['date']
-        films = ""
-        # add showitme >= current time + 5 min
-        shows = show.objects.filter(end_date__gte=date, start_date__lte=date).select_related('movie_id','movie__url','movie__movie_name').order_by('movie_id','showtime').values_list('id','price','showtime','movie','movie__url','movie__movie_name',named=True)
-        res_dict = {}
-        
-        # Grouping shows rows by movie and appending showitmes in a list
-        for s in shows:
-            # legend of fields: showid 0, price 1, showtime 2, movieid 3, movieurl 4, moviename 5,
-            if(s[5] not in res_dict.keys()): 
-                #movie doesn't exit in dict
-                res_dict[s[5]]={'url':s[4],'price':s[1], 'showtimes':{s[0]:s[2]}, 'movieid':s[3]}
-            else: 
-                #movie already exists
-                res_dict[s[5]]['showtimes'][s[0]]=s[2]            
+    else:
+        # Default to tomorrow if no date provided
+        date = (dt_date.today() + timedelta(days=1)).strftime('%Y-%m-%d')
+    
+    # Get shows for the selected date
+    shows = show.objects.filter(end_date__gte=date, start_date__lte=date).select_related('movie_id','movie__url','movie__movie_name').order_by('movie_id','showtime').values_list('id','price','showtime','movie','movie__url','movie__movie_name',named=True)
+    
+    # Grouping shows rows by movie and appending showitmes in a list
+    for s in shows:
+        # legend of fields: showid 0, price 1, showtime 2, movieid 3, movieurl 4, moviename 5,
+        if(s[5] not in res_dict.keys()): 
+            #movie doesn't exit in dict
+            res_dict[s[5]]={'url':s[4],'price':s[1], 'showtimes':{s[0]:s[2]}, 'movieid':s[3]}
+        else: 
+            #movie already exists
+            res_dict[s[5]]['showtimes'][s[0]]=s[2]            
         
     return render(request,"show_selection.html",context = {'films':res_dict,'date':date,'shows':shows})
 
@@ -90,18 +98,49 @@ def checkout(request):
         show_date = request.POST['showdate']
         seats = request.POST['seats']
         show_id = request.POST['showid']
+        
+        # Validate that seats were selected
+        if not seats or seats.strip() == "":
+            context['error'] = "Please select at least one seat to book."
+            return render(request,"checkout.html",context)
+        
         # Get Show id
         showinfo = show.objects.get(id=show_id)
         num_seats = len(seats.split(","))
-        showinfo = show.objects.get(id=show_id)
         total = showinfo.price*num_seats
-        booking.objects.create(booking_code="Random",user=request.user,show=showinfo,show_date=show_date,booked_date=datetime.now(timezone.utc),  seat_num=seats, num_seats=num_seats,total = total)        
+        
+        # Generate unique booking code
+        import random
+        import string
+        booking_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
+        # Create booking
+        booking_obj = booking.objects.create(
+            booking_code=booking_code,
+            user=request.user,
+            show=showinfo,
+            show_date=show_date,
+            booked_date=datetime.now(timezone.utc),
+            seat_num=seats,
+            num_seats=num_seats,
+            total=total
+        )
+        
         context["film"] = film.objects.get(movie_name = showinfo.movie) 
         context['sdate'] = show_date
         context['seats'] = seats
         context['show'] = showinfo
-        message="\nYour tickets are successsfully booked. Here are the details. \nThe movie is {}. \nThe show is on {}. \nThe show starts at {}. \nYour seat numbers are {}. \n\nThank you,\nBookMyTicket".format(context["film"], show_date,showinfo.showtime,seats)
-        sendEmail(request,message)
+        context['booking_code'] = booking_code
+        context['num_seats'] = num_seats
+        context['total'] = total
+        context['booking_id'] = booking_obj.id
+        
+        message="\nYour tickets are successsfully booked. Here are the details. \nBooking Code: {}\nThe movie is {}. \nThe show is on {}. \nThe show starts at {}. \nYour seat numbers are {}. \nTotal Amount: ${}\n\nThank you,\nCinebook".format(booking_code, context["film"], show_date, showinfo.showtime, seats, total)
+        try:
+            sendEmail(request,message)
+        except:
+            pass  # Continue even if email fails
+        
     return render(request,"checkout.html",context)
 
 @user_passes_test(user_login_required, login_url='/accounts/usersignin')
@@ -110,7 +149,7 @@ def userbookings(request):
     if(request.method == "GET" and len(request.GET)!=0):
         msg = request.GET['ack']
 
-    booking_table = booking.objects.filter(user=request.user).select_related().order_by('-booked_date').values_list('id','show_date','booked_date','show__movie__movie_name','show__movie__url','show__showtime','total','seat_num',named=True)
+    booking_table = booking.objects.filter(user=request.user).select_related().order_by('-booked_date').values_list('id','show_date','booked_date','show__movie__movie_name','show__movie__url','show__showtime','total','seat_num','booking_code','num_seats',named=True)
     
     context = {
         'data':booking_table,
@@ -121,7 +160,7 @@ def userbookings(request):
 @user_passes_test(user_login_required, login_url='/accounts/usersignin')
 def cancelbooking(request,id):
     bobj =  booking.objects.get(id=id)
-    message="\nYour tickets are succcessfully Cancelled. Here are the details.\nYour show info{}\nYour Show date {}\nYour seats\n\nThank you,\nBookMyTicket".format(bobj.show,bobj.show_date,bobj.seat_num)
+    message="\nYour tickets are succcessfully Cancelled. Here are the details.\nYour show info{}\nYour Show date {}\nYour seats\n\nThank you,\nCinebook".format(bobj.show,bobj.show_date,bobj.seat_num)
     ack = "Your tickets {} for {} are cancelled successfully".format(bobj.seat_num,bobj.show)
     bobj.delete()
     sendEmail(request,message)

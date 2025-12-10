@@ -4,20 +4,117 @@
 
 <!-- Header -->
 {% block title %}
-<title> Checkout </title>
+<title> Booking Confirmation </title>
+<style>
+    .ticket-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        color: white;
+    }
+    .booking-details {
+        background-color: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+    }
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    .booking-code {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffd60a;
+        letter-spacing: 3px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container text-success text-center" id="movie-content">
-    <h1>Tickets Booked Successfully</h1>
-<h2> Your show info is 
-    {% if show %} 
-            {{ show.showtime }} |
-            {{ show.movie }} 
-
-    {% endif %} </h2>
-<h2> Your show is on {% if sdate %} {{ sdate }} {% endif %} </h2>
-<h2> Your ticket are {% if seats %} {{ seats }} {% endif %} </h2>
-<a class="btn btn-primary" href="/mybookings" >Go to Bookings<a>
+<div class="container" id="movie-content">
+    {% if error %}
+    <div class="alert alert-danger text-center">
+        <h3>{{ error }}</h3>
+        <a class="btn btn-primary" href="/show?date={{ sdate|default:'' }}">Go Back to Select Seats</a>
+    </div>
+    {% else %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="ticket-card text-center">
+                <h1 class="mb-4"><i class="bi bi-check-circle-fill"></i> Tickets Booked Successfully!</h1>
+                
+                {% if booking_code %}
+                <div class="booking-code mb-4">
+                    Booking Code: {{ booking_code }}
+                </div>
+                {% endif %}
+                
+                <div class="booking-details text-left">
+                    <h4 class="mb-3" style="color: #ffd60a;">Booking Details</h4>
+                    
+                    {% if show %}
+                    <div class="detail-row">
+                        <span><strong>Movie:</strong></span>
+                        <span>{{ show.movie }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span><strong>Show Time:</strong></span>
+                        <span>{{ show.showtime|tformat:"%I:%M %p" }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sdate %}
+                    <div class="detail-row">
+                        <span><strong>Show Date:</strong></span>
+                        <span>{{ sdate }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if seats %}
+                    <div class="detail-row">
+                        <span><strong>Seats:</strong></span>
+                        <span style="color: #2ecc71; font-weight: bold;">{{ seats }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if num_seats %}
+                    <div class="detail-row">
+                        <span><strong>Number of Seats:</strong></span>
+                        <span>{{ num_seats }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if total %}
+                    <div class="detail-row">
+                        <span><strong>Total Amount:</strong></span>
+                        <span style="color: #ffd60a; font-size: 20px; font-weight: bold;">${{ total }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <div class="alert alert-success" style="background-color: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #2ecc71; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <h5><i class="bi bi-check-circle-fill"></i> Booking Saved Successfully!</h5>
+                        <p class="mb-0">Your tickets have been saved to "My Bookings". A confirmation email has been sent to your registered email address.</p>
+                    </div>
+                    <a class="btn btn-warning btn-lg mr-3" href="/mybookings" style="font-weight: bold; padding: 12px 30px;">
+                        <i class="bi bi-bookmark-check"></i> View My Bookings
+                    </a>
+                    <a class="btn btn-outline-light btn-lg" href="/show?date={{ sdate|default:'' }}" style="padding: 12px 30px;">
+                        <i class="bi bi-ticket-perforated"></i> Book More Tickets
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

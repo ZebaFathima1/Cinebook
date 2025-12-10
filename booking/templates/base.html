@@ -65,12 +65,14 @@
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark bgdark">
             <div class="container px-4 px-lg-5 bg-dark bgdark navbarstyle">
-                <a class="navbar-brand navbarstyle" href="/">BookMyTiket</a>
+                <a class="navbar-brand navbarstyle" href="/">Cinebook</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                        <li class="nav-item"><a class="nav-link text-warning" href="/show?date={{ "%Y-%m-%d"|cdateadd:"1" }}">Book Show</a></li>
-                        <li class="nav-item"><a class="nav-link text-warning" href="/mybookings">My bookings</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="/"><i class="bi bi-house"></i> Home</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="/show?date={{ "%Y-%m-%d"|cdateadd:"1" }}"><i class="bi bi-calendar-event"></i> Book Show</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="/show"><i class="bi bi-ticket-perforated"></i> Seat Booking</a></li>
+                        <li class="nav-item"><a class="nav-link text-warning" href="/mybookings"><i class="bi bi-bookmark-check"></i> My Bookings</a></li>
                 
                     </ul>
                             {% if user.is_authenticated %}
@@ -100,7 +102,7 @@
     </main>
         <!-- Footer-->
         <footer class="py-2 bg-dark bgdark footerstyle" >
-            <div class="container" ><p class="m-0 text-center ">Copyright &copy;BookMyTiket 2022</p></div>
+            <div class="container" ><p class="m-0 text-center ">Copyright &copy;Cinebook 2025</p></div>
             <div class="container"><p class="m-0 text-center ">Terms of Use and</p></div>
             <div class="container"><p class="m-0 text-center ">Privacy Policy </p></div>
         </footer>

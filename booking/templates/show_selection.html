@@ -53,25 +53,49 @@
     <div class="row">
         <!-- results -->
         <div class="container col-md-8 results" >
+          {% if date %}
           <p class="text-secondary">Movies showing on <b>{{ date }}</b> </p>
+          {% else %}
+          <p class="text-secondary">Please select a date to see available shows</p>
+          {% endif %}
+          
             {% if films %}
                 {% for key, value in films.items %} 
-                    <div class="row" >
+                    <div class="row" style="margin-bottom: 20px; padding: 15px; background-color: rgba(255,255,255,0.05); border-radius: 8px;">
                         <div class="col-md-2">
-                          <img class="img-fluid "  style="margin:10px;" src="{{value|get:"url"}}">
+                          <img class="img-fluid "  style="margin:10px; border-radius: 5px;" src="{{value|get:"url"}}">
                         </div>
                         <div class="col-md-10">
-                          <h1>{{ key }}</h1>
+                          <h1 style="color: #ffd60a;">{{ key }}</h1>
                           <div class="form-group">
                             {% for showid,time in value|get:"showtimes"|items %}
-                              <a class="btn btn-primary showtimebtn" style="padding-left:20px;padding-right:20px;" data-showid="{{ showid }}" data-toggle="modal" data-target="#exampleModalCenter22" href="#">{{ time|tformat:"%I:%M %p" }}</a>
+                              <button type="button" class="btn btn-success showtimebtn" style="padding:12px 30px; margin:8px; font-weight:bold; font-size:16px; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);" data-showid="{{ showid }}" data-price="{{ value|get:'price' }}" data-time="{{ time|tformat:'%I:%M %p' }}" title="Click to book seats for {{ time|tformat:'%I:%M %p' }}">
+                                <i class="bi bi-ticket-perforated" style="font-size:18px;"></i> Book
+                                <br><small style="display:block; font-size:0.75em; font-weight:normal; margin-top:3px;">{{ time|tformat:"%I:%M %p" }} | ${{ value|get:"price" }}</small>
+                              </button>
                             {% endfor %}
                           </div>
                         </div>
                     </div>
 
                 {% endfor %}
-              {%endif%}
+            {% elif date %}
+              <div class="alert alert-warning" style="background-color: rgba(255, 193, 7, 0.2); border: 1px solid #ffc107; color: #ffc107; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h4><i class="bi bi-info-circle"></i> No shows available</h4>
+                <p>There are no movies showing on <strong>{{ date }}</strong>.</p>
+                <p>Please try a different date or contact the admin to add shows.</p>
+                {% if user.is_staff %}
+                <a href="/admin/shows" class="btn btn-warning mt-2">
+                  <i class="bi bi-plus-circle"></i> Add Shows (Admin)
+                </a>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="alert alert-info" style="background-color: rgba(13, 202, 240, 0.2); border: 1px solid #0dcaf0; color: #0dcaf0; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h4><i class="bi bi-calendar-event"></i> Select a Date</h4>
+                <p>Please select a date above to see available movie shows and book tickets.</p>
+              </div>
+            {% endif %}
         </div>
        
     </div>
@@ -80,10 +104,13 @@
 </div>
               <!-- Seat Booking -->
             <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="max-width: 95%;">
                 <div class="modal-content" >
                   <div class="modal-header" style="border-bottom: None;">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Book tickets</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                      <i class="bi bi-ticket-perforated"></i> Select Your Seats
+                      <div id="show-info" style="font-size: 0.7em; color: #ffd60a; margin-top: 5px;"></div>
+                    </h5>
                     <button type="button" style="color:white;" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -92,87 +119,99 @@
                     
                     <!-- Model body-->
                     <div class="sbodymodal" >
-                      <div class="scontainer">
-                        <div class="screen"></div>
-                        <hr>
-                        <div class="srow">
-                          <div class="seatindex">A</div>
-                          <div class="seat" sno="A1" ></div>
-                          <div class="seat" sno="A2" ></div>
-                          <div class="seat" sno="A3" ></div>
-                          <div class="seat" sno="A4" ></div>
-                          <div class="seat" sno="A5" ></div>
-                          <div class="seat" sno="A6" ></div>
-                          <div class="seat" sno="A7" ></div>
-                          <div class="seat" sno="A8" ></div>
-                          
-                        </div>
-                        <div class="srow">
-                          <div class="seatindex">B</div>
-                          <div class="seat" sno="B1"></div>
-                          <div class="seat" sno="B2"></div>
-                          <div class="seat" sno="B3"></div>
-                          <div class="seat" sno="B4"></div>
-                          <div class="seat" sno="B5"></div>
-                          <div class="seat" sno="B6"></div>
-                          <div class="seat" sno="B7"></div>
-                          <div class="seat" sno="B8"></div>
-                        </div>
-                        <div class="srow">
-                          <div class="seatindex">C</div>
-                          <div class="seat" sno="C1"></div>
-                          <div class="seat" sno="C2"></div>
-                          <div class="seat" sno="C3"></div>
-                          <div class="seat" sno="C4"></div>
-                          <div class="seat" sno="C5"></div>
-                          <div class="seat" sno="C6"></div>
-                          <div class="seat" sno="C7"></div>
-                          <div class="seat" sno="C8"></div>
-                        </div>
-                        <div class="srow">
-                          <div class="seatindex">D</div>
-                          <div class="seat" sno="D1"></div>
-                          <div class="seat" sno="D2"></div>
-                          <div class="seat" sno="D3"></div>
-                          <div class="seat" sno="D4"></div>
-                          <div class="seat" sno="D5"></div>
-                          <div class="seat" sno="D6"></div>
-                          <div class="seat" sno="D7"></div>
-                          <div class="seat" sno="D8"></div>
-                        </div>
-                        <div class="srow">
-                          <div class="seatindex">E</div>
-                          <div class="seat" sno="E1"></div>
-                          <div class="seat" sno="E2"></div>
-                          <div class="seat" sno="E3"></div>
-                          <div class="seat" sno="E4"></div>
-                          <div class="seat" sno="E5"></div>
-                          <div class="seat" sno="E6"></div>
-                          <div class="seat" sno="E7"></div>
-                          <div class="seat" sno="E8"></div>
-                        </div>
-
-                        <div class="srow">
-                          <div class="seatindex">F</div>
-                          <div class="seat" sno="F1"></div>
-                          <div class="seat" sno="F2"></div>
-                          <div class="seat" sno="F3"></div>
-                          <div class="seat" sno="F4"></div>
-                          <div class="seat" sno="F5"></div>
-                          <div class="seat" sno="F6"></div>
-                          <div class="seat" sno="F7"></div>
-                          <div class="seat" sno="F8"></div>
-                        </div>
-                        <div class="srow">
-                          <div class="seatnumber"></div>
-                          <div class="seatnumber">1</div>
-                          <div class="seatnumber">2</div>
-                          <div class="seatnumber">3</div>
-                          <div class="seatnumber">4</div>
-                          <div class="seatnumber">5</div>
-                          <div class="seatnumber">6</div>
-                          <div class="seatnumber">7</div>
-                          <div class="seatnumber">8</div>
+                      <div class="scontainer" style="max-width: 100%; padding: 15px;">
+                        <!-- Screen -->
+                        <div class="screen" style="margin-bottom: 25px;"></div>
+                        <div style="text-align: center; color: #ffd60a; margin-bottom: 20px; font-weight: bold; font-size: 20px; letter-spacing: 3px;">SCREEN</div>
+                        <hr style="border-color: #555; margin-bottom: 20px;">
+                        
+                        <!-- Seat Layout Container -->
+                        <div style="overflow-x: auto; padding: 10px 0;">
+                          <!-- Row Labels and Seats -->
+                          <div style="display: flex; flex-direction: column; gap: 12px;">
+                            
+                            <!-- Row A -->
+                            <div class="seat-row-container">
+                              <div class="srow" id="row-A">
+                                <div class="seatindex-large">A</div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="A{{ forloop.counter }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="A{{ forloop.counter|add:10 }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="A{{ forloop.counter|add:20 }}"></div>{% endfor %}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Row B -->
+                            <div class="seat-row-container">
+                              <div class="srow" id="row-B">
+                                <div class="seatindex-large">B</div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="B{{ forloop.counter }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="B{{ forloop.counter|add:10 }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="B{{ forloop.counter|add:20 }}"></div>{% endfor %}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Row C -->
+                            <div class="seat-row-container">
+                              <div class="srow" id="row-C">
+                                <div class="seatindex-large">C</div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="C{{ forloop.counter }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="C{{ forloop.counter|add:10 }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="C{{ forloop.counter|add:20 }}"></div>{% endfor %}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Row D -->
+                            <div class="seat-row-container">
+                              <div class="srow" id="row-D">
+                                <div class="seatindex-large">D</div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="D{{ forloop.counter }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="D{{ forloop.counter|add:10 }}"></div>{% endfor %}
+                                </div>
+                                <div class="seat-group">
+                                  {% for i in "1234567890"|make_list %}<div class="seat" sno="D{{ forloop.counter|add:20 }}"></div>{% endfor %}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Seat Numbers Row -->
+                            <div class="srow" style="margin-top: 15px; padding-left: 30px;">
+                              <div class="seatnumber" style="width: 30px;"></div>
+                              <div class="seat-group">
+                                <div class="seatnumber">1</div><div class="seatnumber">2</div><div class="seatnumber">3</div><div class="seatnumber">4</div><div class="seatnumber">5</div>
+                                <div class="seatnumber">6</div><div class="seatnumber">7</div><div class="seatnumber">8</div><div class="seatnumber">9</div><div class="seatnumber">10</div>
+                              </div>
+                              <div class="seat-group">
+                                <div class="seatnumber">11</div><div class="seatnumber">12</div><div class="seatnumber">13</div><div class="seatnumber">14</div><div class="seatnumber">15</div>
+                                <div class="seatnumber">16</div><div class="seatnumber">17</div><div class="seatnumber">18</div><div class="seatnumber">19</div><div class="seatnumber">20</div>
+                              </div>
+                              <div class="seat-group">
+                                <div class="seatnumber">21</div><div class="seatnumber">22</div><div class="seatnumber">23</div><div class="seatnumber">24</div><div class="seatnumber">25</div>
+                                <div class="seatnumber">26</div><div class="seatnumber">27</div><div class="seatnumber">28</div><div class="seatnumber">29</div><div class="seatnumber">30</div>
+                              </div>
+                            </div>
+                            
+                          </div>
                         </div>
                       </div>
 
@@ -195,16 +234,33 @@
                     </div>
                   </div>
                   <div class="modal-footer" style="border-top:None">
-
-                    <form  id="target_form" method="post" action="/checkout">
-                      {% csrf_token %}
+                    <div class="container-fluid">
+                      <div class="row mb-3">
+                        <div class="col-12">
+                          <div id="booking-summary" style="background-color: rgba(255,255,255,0.1); padding: 15px; border-radius: 5px; margin-bottom: 10px;">
+                            <h6 style="color: #ffd60a; margin-bottom: 10px;">Booking Summary</h6>
+                            <p style="margin: 5px 0;"><strong>Selected Seats:</strong> <span id="selected-seats-display" style="color: #2ecc71;">None</span></p>
+                            <p style="margin: 5px 0;"><strong>Number of Seats:</strong> <span id="seat-count" style="color: #2ecc71;">0</span></p>
+                            <p style="margin: 5px 0;"><strong>Price per Seat:</strong> <span id="price-per-seat" style="color: #ffd60a;">$0</span></p>
+                            <p style="margin: 5px 0; font-size: 18px;"><strong>Total Amount:</strong> <span id="total-amount" style="color: #2ecc71; font-weight: bold;">$0</span></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-12">
+                          <form  id="target_form" method="post" action="/checkout">
+                            {% csrf_token %}
                             <input type="hidden" type="text" name="showdate" id="show_date" value="{% if date %}{{ date }}{% endif %}" />
                             <input type="hidden" type="text" name="seats" id="seats_input" />
                             <input type="hidden" type="text" name="showid" id="show_id" />
-                    </form>
-                      <button type="button" class="btn btn-primary btn-block bookticketsbtn">Book Tickets</button>
-                      <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Cancel</button>
-                          
+                          </form>
+                          <button type="button" class="btn btn-success btn-block bookticketsbtn" id="book-btn" disabled>
+                            <i class="bi bi-check-circle"></i> Confirm & Book Tickets
+                          </button>
+                          <button type="button" class="btn btn-secondary btn-block mt-2" data-dismiss="modal">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -226,53 +282,114 @@
         $("#dateform").submit();
     });
 
-    $(".showtimebtn").click(function(){
-      // Show Seats event
-      seats();
-
-
-      var show_id;
-      show_id = $(this).attr("data-showid");
+    $(".showtimebtn").on('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
       
-      show_date = $("#show_date").val();
+      console.log("Book button clicked!");
+      
+      var show_id = $(this).attr("data-showid");
+      var show_date = $("#show_date").val();
+      
+      if(!show_id) {
+        console.error("No show ID found!");
+        alert("Error: Show ID not found. Please try again.");
+        return false;
+      }
+      
+      console.log("Show ID:", show_id);
+      console.log("Show Date:", show_date);
+      
+      // Set form values
       $("#show_id").val(show_id);
-      // Clear booked seats info
-      $(".seat.occupied").each(function() {
-        $(this).removeClass("occupied")
-      });
-      // clear selected seat info
-      $(".seat.selected").each(function() {
-        $(this).removeClass("selected")
-      });
-      seats();
-
-      console.log(show_id);
-      // Also add to input with type hidden
-      $.ajax(
-      {
-          type:"GET", url: "bookedseats", data:{ show_id: show_id,show_date: show_date},
-          success: function(data) 
-          {
-              console.log(data)  
-              if(data.length !=0){
-                //console.log("not empty");
-                booked = data.split(",");
-                console.log(booked);
-                for (id in booked){
-                  $(".seat[sno|="+booked[id]).addClass("occupied");
-                }
-
-                
-              }
-              else {
-                console.log("empty");
-              }
-
-          }
-      })
-
-      $('#exampleModalCenter').modal('show');
       
+      // Get price and time from the button
+      var price = $(this).attr("data-price") || 0;
+      var time = $(this).attr("data-time") || "";
+      var movieName = $(this).closest('.row').find('h1').text() || "";
+      
+      // Update modal title with show info
+      if($("#show-info").length) {
+        $("#show-info").html("<strong>" + movieName + "</strong> - " + time + " | $" + price + " per seat");
+      }
+      
+      if($("#price-per-seat").length) {
+        $("#price-per-seat").text("$" + price);
+      }
+      
+      // Clear booked seats info
+      $(".seat.occupied").removeClass("occupied");
+      // clear selected seat info
+      $(".seat.selected").removeClass("selected");
+      
+      // Reset booking summary
+      if(typeof updateBookingSummary === 'function') {
+        updateBookingSummary();
+      }
+      
+      // Check if modal exists
+      var modal = $('#exampleModalCenter');
+      if(modal.length === 0) {
+        console.error("Modal not found!");
+        alert("Error: Seat selection modal not found. Please refresh the page.");
+        return false;
+      }
+      
+      console.log("Opening modal...");
+      
+      // Try Bootstrap modal method first
+      try {
+        modal.modal('show');
+      } catch(err) {
+        console.error("Bootstrap modal error:", err);
+      }
+      
+      // Fallback: Force show modal if Bootstrap doesn't work
+      setTimeout(function() {
+        if(!modal.hasClass('show') || modal.css('display') === 'none') {
+          console.log("Using fallback method to show modal...");
+          modal.addClass('show');
+          modal.css({
+            'display': 'block',
+            'padding-right': '17px'
+          });
+          $('body').addClass('modal-open');
+          // Remove existing backdrop
+          $('.modal-backdrop').remove();
+          // Add backdrop
+          $('<div class="modal-backdrop fade show"></div>').appendTo('body');
+        }
+      }, 50);
+      
+      // Load booked seats via AJAX after modal is shown
+      modal.on('shown.bs.modal', function() {
+        console.log("Modal is now shown, loading booked seats...");
+        
+        $.ajax({
+          type:"GET", 
+          url: "bookedseats", 
+          data:{ show_id: show_id, show_date: show_date},
+          success: function(data) {
+            console.log("Booked seats data:", data);
+            if(data && data.length != 0 && data.trim() !== ""){
+              var booked = data.split(",");
+              console.log("Booked seats:", booked);
+              for (var i = 0; i < booked.length; i++){
+                if(booked[i] && booked[i].trim() !== ""){
+                  $(".seat[sno='" + booked[i].trim() + "']").addClass("occupied");
+                }
+              }
+            } else {
+              console.log("No booked seats");
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error("Error loading booked seats:", error);
+          }
+        });
+      });
+      
+      return false;
     });
     
 
@@ -295,14 +412,46 @@
         }
       });
       console.log(selected);
-      $("#seats_input").val(selected);
+      $("#seats_input").val(selected.join(","));
+      updateBookingSummary();
       return selected;
     }
 
+    function updateBookingSummary(){
+      var selected = seats();
+      var seatCount = selected.length;
+      var pricePerSeat = parseFloat($("#price-per-seat").text().replace("$", "")) || 0;
+      var total = seatCount * pricePerSeat;
+      
+      // Update display
+      if(selected.length > 0){
+        $("#selected-seats-display").text(selected.join(", "));
+      } else {
+        $("#selected-seats-display").text("None");
+      }
+      
+      $("#seat-count").text(seatCount);
+      $("#total-amount").text("$" + total.toFixed(2));
+      
+      // Enable/disable book button
+      if(seatCount > 0){
+        $("#book-btn").prop("disabled", false).removeClass("btn-secondary").addClass("btn-success");
+      } else {
+        $("#book-btn").prop("disabled", true).removeClass("btn-success").addClass("btn-secondary");
+      }
+    }
 
     $(".bookticketsbtn").click(function(){
-      $( "#target_form" ).submit();
-      console.log("Button clicked");
+      var selectedSeats = $("#seats_input").val();
+      if(!selectedSeats || selectedSeats.length === 0){
+        alert("Please select at least one seat to continue.");
+        return false;
+      }
+      
+      if(confirm("Confirm booking for seats: " + selectedSeats + "?")){
+        $( "#target_form" ).submit();
+        console.log("Button clicked - Form submitted");
+      }
     });
     
     
