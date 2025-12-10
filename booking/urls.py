@@ -1,13 +1,20 @@
 from . import views
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
 urlpatterns = [
-    path('', views.home, name='mainpage'), 
-    path('detail/<id>', views.movie_detail, name="movie detail"), 
-    path('show', views.show_select, name="show select"),
-    path('bookedseats', views.bookedseats, name="bookedseats"),
-    path('mybookings', views.userbookings, name="user bookings"),
-    path('checkout', views.checkout, name="checkout"), 
-    path('cancelbooking/<int:id>', views.cancelbooking, name='cancel-booking'), 
+    path('', views.home, name='home'),
+
+    path('movie/<int:id>/', views.movie_detail, name='movie_detail'),
+
+    path('showtime/', views.show_select, name='show_select'),
+
+    path('seats/<int:show_id>/', views.seat_view, name='seat_view'),
+
+    path('bookedseats/', views.bookedseats, name='bookedseats'),
+
+    path('checkout/', views.checkout, name='checkout'),
+
+    path('mybookings/', views.userbookings, name='mybookings'),
+
+    path('cancel/<int:id>/', views.cancelbooking, name='cancelbooking'),
 ]
